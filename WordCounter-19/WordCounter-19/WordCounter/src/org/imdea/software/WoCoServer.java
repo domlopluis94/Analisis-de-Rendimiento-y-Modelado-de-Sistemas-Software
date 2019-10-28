@@ -40,9 +40,12 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		
 		//calculo de hora de inicio y fin 
 		long startTime = System.nanoTime();
+		
+		//Limpieza 
+		
 		String ucLine = line.toLowerCase();
 		StringBuilder asciiLine = new StringBuilder();
-		//añadido- calcula el tiempo en donde termino de limpiar de etiquetas html
+		//aï¿½adido- calcula el tiempo en donde termino de limpiar de etiquetas html
 		String noHTMLString = ucLine.replaceAll("\\<.*?\\>", "");
 		long endTime_Tags = System.nanoTime();
 		
