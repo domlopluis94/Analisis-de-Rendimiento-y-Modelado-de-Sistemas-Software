@@ -46,7 +46,8 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		String ucLine = line.toLowerCase();
 		StringBuilder asciiLine = new StringBuilder();
 		//a�adido- calcula el tiempo en donde termino de limpiar de etiquetas html
-		String noHTMLString = ucLine.replaceAll("\\<.*?\\>", "");
+		//String noHTMLString = ucLine.replaceAll("\\<.*?\\>", "");
+		ucLine = Cleaning(ucLine);
 		long endTime_Tags = System.nanoTime();
 		
 		char lastAdded = ' ';
@@ -352,5 +353,59 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		}
 	}
 
+    /**
+     * @param line
+     * @return the param line without the tags of html in a String
+     */
+	public static String Cleaning(String line) {
+		//init varaibles usadas
+		char[] cline = line.toCharArray();
+		int tamline = line.length();
+		char[] tagline = new char[tamline];
+		char[] clean = new char[tamline];
+		boolean enTag = false;
+		int conttag=0;
+		int contclean=0;
+		// Empezamos a mirar <
+		for(int x=0; x<cline.length ;x++) {
+			if(cline[x] == '<' || enTag) {
+				//tenemos que mirar si es un tag
+				if(!enTag) {
+					conttag=0;
+					enTag=true;
+					tagline[conttag]=cline[x];
+					conttag++;
+				}else {
+					if(cline[x]=='<') {
+						//añadir a clean
+						for(int z=0;z<conttag;z++) {
+							clean[contclean]=tagline[z];
+							contclean++;
+						}
+						tagline = new char[tamline];
+						conttag=0;
+						tagline[conttag]=cline[x];
+						conttag++;
+						//
+					}else if(cline[x]=='>') {
+						//cerrar tag
+						tagline = new char[tamline];
+						conttag=0;
+						enTag=false;
+					}else {
+						//seguir recorrido
+						tagline[conttag]=cline[x];
+						conttag++;
+					}
+				}	
+			}else {
+				//
+				clean[contclean]=cline[x];
+				contclean++;
+			}
+		}
+		return String.copyValueOf(clean);
+		
+	}
 }
 
