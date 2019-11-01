@@ -18,12 +18,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.io.FileWriter;
 import java.io.IOException;
 
 
-public class WoCoServer {
+public class WoCoServer extends Thread {
 	long service_time=0;
+	//public static final String rute ="C://Users//paula//Documents//WordCounter-19//WordCounter/";
+	public static final String rute ="/Users/luisdominguez/Desktop/";
 	public static final char SEPARATOR = '$';
 	private HashMap<Integer, StringBuilder> buffer;
 	private HashMap<Integer, HashMap<String, Integer>> results;
@@ -45,11 +48,12 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		
 		String ucLine = line.toLowerCase();
 		StringBuilder asciiLine = new StringBuilder();
-		//a�adido- calcula el tiempo en donde termino de limpiar de etiquetas html
-		//String noHTMLString = ucLine.replaceAll("\\<.*?\\>", "");
+		
+		//limpieza 
 		ucLine = Cleaning(ucLine);
 		long endTime_Tags = System.nanoTime();
 		
+		//conteo
 		char lastAdded = ' ';
 		for (int i=0; i<line.length(); i++) {
 		
@@ -61,9 +65,7 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		}
 		
 		String[] words = asciiLine.toString().split(" ");
-		for (String s : words) {
-			
-			
+		for (String s : words) {	
 			if (wc.containsKey(s)) {
 				wc.put(s, wc.get(s)+1);
 			} else {
@@ -78,12 +80,10 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		long duration = ((endTime - startTime));
 		//calcula la diferencia para el tiempo de limpieza de tags html 
 		long duration_cleaning = ((endTime - endTime_Tags));
-
-		
-		
+				
 		try {
 			
-	        String ruta = "C://Users//paula//Documents//WordCounter-19//WordCounter/2do_Limpieza.txt";
+	        String ruta = rute+"2do_Limpieza.txt";
 	        String contenido = "Contenido de ejemplo";
 	        File file = new File(ruta);
 	        // Si el archivo no esta creado aun
@@ -142,9 +142,7 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 				
 		if (dataChunk.indexOf(WoCoServer.SEPARATOR)>-1) {
 			//we have at least one line
-			
 			String bufData = sb.toString();
-			
 			int indexNL = bufData.indexOf(WoCoServer.SEPARATOR);
 			
 			String line = bufData.substring(0, indexNL);
@@ -166,7 +164,6 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 				buffer.put(clientId, new StringBuilder());
 			}
 			
-			
 			//word count in line
 			HashMap<String, Integer> wc = results.get(clientId);
 			doWordCount(line, wc);
@@ -175,11 +172,11 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 			long endTime = System.nanoTime();
 			long duration = (long) ((endTime - startTime));
 			
-			System.out.println("tiempo 1" + startTime  +   "  tiempo 2 "  + endTime    + "duration " + duration );
+			System.out.println("tiempo 1 " + startTime  +   "  tiempo 2 "  + endTime    + "duration " + duration );
 			
 			try {
 				
-		        String ruta = "C://Users//paula//Documents//WordCounter-19//WordCounter/filename.txt";
+		        String ruta = rute+"filename.txt";
 		        String contenido = "Contenido de ejemplo";
 		        File file = new File(ruta);
 		        // Si el archivo no esta creado aun
@@ -192,7 +189,7 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		    		service_time = 1/duration;
 		            bw.write("Time spent until the entire document has been received: "  +  service_time  + "nano seconds");
 		            }        
-		        bw.write("Time spent until the entire document has been received: "  +  0);
+		        bw.write("Time spent until the entire document has been received: "  +  0);        
 		        bw.close();
 		    } catch (Exception e) {
 		        e.printStackTrace();
@@ -235,7 +232,7 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		 
 			try {
 				
-		        String ruta = "C://Users//paula//Documents//WordCounter-19//WordCounter/3erd_serializing.txt";
+		        String ruta = rute+"3erd_serializing.txt";
 		        String contenido = "Contenido de ejemplo";
 		        File file = new File(ruta);
 		        // Si el archivo no esta creado aun
@@ -334,7 +331,8 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		            
 		            if (readCnt>0) {
 		            	String result = new String(bb.array(),0, readCnt);		            
-		            		         						
+		         	         	
+		            	//Re
 						boolean hasResult = server.receiveData(clientId, result);
 						
 						if (hasResult) {
@@ -353,6 +351,7 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		}
 	}
 
+   
     /**
      * @param line
      * @return the param line without the tags of html in a String
@@ -407,5 +406,33 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		return String.copyValueOf(clean);
 		
 	}
+	
+    /**
+     * Imprime HashMap en un directorio
+     * @param wc
+     */
+    public  static void saveWC(HashMap<String, Integer> wc) {
+    	try {
+	        String ruta = rute+"resultWC.txt";
+	        File file = new File(ruta);
+	        // Si el archivo no esta creado aun
+	        if (!file.exists()) {
+	            file.createNewFile();
+	        }
+	        FileWriter fw = new FileWriter(file);
+	        BufferedWriter bw = new BufferedWriter(fw);
+	    
+	        for (Entry<String, Integer> entry : wc.entrySet()) {
+			    System.out.println(entry.getKey() + " = " + entry.getValue());
+			    bw.write(entry.getKey() + " = " + entry.getValue());
+			    bw.newLine();
+			}
+	        bw.close();
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+    	
+    }
 }
 
