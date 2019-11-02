@@ -54,36 +54,20 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		long endTime_Tags = System.nanoTime();
 		
 		//conteo
-		char lastAdded = ' ';
-		for (int i=0; i<line.length(); i++) {
-		
-			char cc = ucLine.charAt(i);
-			if ((cc>='a' && cc<='z') || (cc==' ' && lastAdded!=' ')) {
-				asciiLine.append(cc);
-				lastAdded = cc;
-			}
-		}
-		
-		String[] words = asciiLine.toString().split(" ");
-		for (String s : words) {	
-			if (wc.containsKey(s)) {
-				wc.put(s, wc.get(s)+1);
-			} else {
-				wc.put(s, 1);
-			}
-		}
+		countword(ucLine ,wc);
 		
 		
-		//Toma el tiempo final cuando termina de contar todo el archivo
+       	//Toma el tiempo final cuando termina de contar todo el archivo
 		long endTime = System.nanoTime();
 		//calcula la diferencia para el tiempo total del word count
-		long duration = ((endTime - startTime));
+		float duration = (float) ((endTime - startTime)/1000000000.0);
 		//calcula la diferencia para el tiempo de limpieza de tags html 
-		long duration_cleaning = ((endTime - endTime_Tags));
+		float duration_cleaning = (float) ((endTime - endTime_Tags)/1000000000.0);
 				
 		try {
-			
-	        String ruta = rute+"2do_Limpieza.txt";
+			float service_time_Cleaning=0;
+		    float service_time_counting=0;
+	        String ruta = rute+"2-3.Cleaning-Counting.txt";
 	        String contenido = "Contenido de ejemplo";
 	        File file = new File(ruta);
 	        // Si el archivo no esta creado aun
@@ -93,8 +77,16 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 	        FileWriter fw = new FileWriter(file);
 	        BufferedWriter bw = new BufferedWriter(fw);
 	        bw.write("FINE-GRAINED STATISTICS GATHERING INSIDE THE SERVER" + "\n");
-	        bw.write("Time spent cleaning the document (removing tags) " + duration_cleaning + "\n");  
-	        bw.write("Time spent Counting" + duration+ "\n");    
+	        bw.write("Time spent cleaning the document (removing tags): " + duration_cleaning + "\n");  
+	        bw.write("Time spent Counting:" + duration+ "\n");    
+	        if(duration!=0) {
+	        	service_time_Cleaning = 1/duration_cleaning;
+	            bw.write("Time to process Cleaning (μ): "  +  service_time_Cleaning  + "seconds");
+	            }  
+	        if(duration!=0) {
+	        	service_time_counting = 1/duration;
+	            bw.write("Time to process Counting (μ): "  +  service_time_counting  + "seconds");
+	            }  
 	        bw.close();
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -168,15 +160,16 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 			HashMap<String, Integer> wc = results.get(clientId);
 			doWordCount(line, wc);
 			
+			saveWC(wc);
 			 // CALCULATE SERVICE RATE 
 			long endTime = System.nanoTime();
-			long duration = (long) ((endTime - startTime));
+			float duration = (float) ((endTime - startTime)/1000000000.0);
 			
 			System.out.println("tiempo 1 " + startTime  +   "  tiempo 2 "  + endTime    + "duration " + duration );
 			
 			try {
 				
-		        String ruta = rute+"filename.txt";
+		        String ruta = rute+"1.Time_receive.txt.txt";
 		        String contenido = "Contenido de ejemplo";
 		        File file = new File(ruta);
 		        // Si el archivo no esta creado aun
@@ -185,11 +178,16 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		        }
 		        FileWriter fw = new FileWriter(file);
 		        BufferedWriter bw = new BufferedWriter(fw);
+		      //time to process a job 
+		        bw.write("TIME SPENT UNTIL THE ENTIRE DOCUMENT HAS BEEN RECEIVED" + "\n");
+		        bw.write("******************************************************" + "\n");
+		        bw.write("time seconds:" +duration + "\n");
+
 		        if(duration!=0) {
-		    		service_time = 1/duration;
-		            bw.write("Time spent until the entire document has been received: "  +  service_time  + "nano seconds");
+		    		service_time = (long) (1/duration);
+		            bw.write("Time to process a job: "  +  service_time  + "seconds");
 		            }        
-		        bw.write("Time spent until the entire document has been received: "  +  0);        
+		   
 		        bw.close();
 		    } catch (Exception e) {
 		        e.printStackTrace();
@@ -228,11 +226,11 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 			
 			
 			endTime = System.nanoTime();
-			duration = ((endTime - startTime));
-		 
+			duration = (long) ((endTime - startTime)/1000000000.0);
+			 
 			try {
 				
-		        String ruta = rute+"3erd_serializing.txt";
+		        String ruta = "C://Users//paula//Documents//WordCounter-19//WordCounter/4.Serializing.txt";
 		        String contenido = "Contenido de ejemplo";
 		        File file = new File(ruta);
 		        // Si el archivo no esta creado aun
@@ -242,7 +240,7 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		        FileWriter fw = new FileWriter(file);
 		        BufferedWriter bw = new BufferedWriter(fw);
 		        bw.write("FINE-GRAINED STATISTICS GATHERING INSIDE THE SERVER" + "\n");
-		        bw.write("time spent serializing the results" + duration + "\n");  
+		        bw.write("time spent serializing the results :" + duration + "\n");  
 		      
 		        bw.close();
 		    } catch (Exception e) {
@@ -442,6 +440,34 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 	        e.printStackTrace();
 	    }
     	
+    }
+    
+    /**
+     * 
+     * @param ucLine
+     * @return
+     */
+    public synchronized static void countword(String ucLine ,HashMap<String, Integer> wc) {
+    	
+		StringBuilder asciiLine = new StringBuilder();
+		char lastAdded = ' ';
+		for (int i=0; i<ucLine.length(); i++) {
+			
+			char cc = ucLine.charAt(i);
+			if ((cc>='a' && cc<='z') || (cc==' ' && lastAdded!=' ')) {
+				asciiLine.append(cc);
+				lastAdded = cc;
+			}
+		}
+		
+		String[] words = asciiLine.toString().split(" ");
+		for (String s : words) {	
+			if (wc.containsKey(s)) {
+				wc.put(s, wc.get(s)+1);
+			} else {
+				wc.put(s, 1);
+			}
+		}
     }
 }
 
