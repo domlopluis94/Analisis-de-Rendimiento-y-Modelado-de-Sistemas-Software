@@ -1,0 +1,4 @@
+FINE-GRAINED STATISTICS GATHERING INSIDE THE SERVER
+Time spent cleaning the document (removing tags): 2.011E-4
+Time spent Counting:3.858E-4
+Time to process Cleaning (μ): 4972.6504secondsTime to process Counting (μ): 2592.0166seconds

@@ -1,0 +1,4 @@
+TIME SPENT UNTIL THE ENTIRE DOCUMENT HAS BEEN RECEIVED
+******************************************************
+time seconds:0.010606
+Time to process a job: 94.286255seconds

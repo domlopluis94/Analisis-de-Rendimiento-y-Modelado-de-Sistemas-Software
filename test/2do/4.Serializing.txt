@@ -1,0 +1,2 @@
+FINE-GRAINED STATISTICS GATHERING INSIDE THE SERVER
+time spent serializing the results :7.25E-5
