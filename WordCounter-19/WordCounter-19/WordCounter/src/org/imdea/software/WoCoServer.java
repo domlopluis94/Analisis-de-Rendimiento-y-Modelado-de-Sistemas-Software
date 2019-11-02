@@ -333,13 +333,23 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 		            	String result = new String(bb.array(),0, readCnt);		            
 		         	         	
 		            	//Re
-						boolean hasResult = server.receiveData(clientId, result);
-						
-						if (hasResult) {
-							
-							ba = ByteBuffer.wrap(server.serializeResultForClient(clientId).getBytes());
-							client.write(ba);
-						}
+		            	new Thread(new Runnable() {
+		            	     @Override
+		            	     public void run() {
+		            	          // code goes here.
+		            	    	 boolean hasResult = server.receiveData(clientId, result);
+		            	    	 if (hasResult) {
+		 							try {
+		 								ByteBuffer baa = ByteBuffer.wrap(server.serializeResultForClient(clientId).getBytes());
+										client.write(baa);
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+		 						}
+		            	     }
+		            	}).start();
+		            	
 		            } else {
 		            	key.cancel();
 		            }
@@ -350,13 +360,12 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
 			}
 		}
 	}
-
-   
+	
     /**
      * @param line
      * @return the param line without the tags of html in a String
      */
-	public static String Cleaning(String line) {
+	public synchronized static String Cleaning(String line) {
 		//init varaibles usadas
 		char[] cline = line.toCharArray();
 		int tamline = line.length();
@@ -435,4 +444,5 @@ public static void doWordCount(String line, HashMap<String, Integer> wc) {
     	
     }
 }
+
 
